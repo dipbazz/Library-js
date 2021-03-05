@@ -9,14 +9,11 @@ const form = document.getElementById('form');
 
 const myLibrary = [];
 
-function Book(title = '', author = '', pages = '', read = false) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
+const Book = (title, author, pages, read = false) => {
+  return { title, author, pages, read }
 }
 
-function createBookCard(book, index) {
+const createBookCard = (book, index) => {
   const bookDiv = document.createElement('div');
   bookDiv.classList.add('book');
   // To do list
@@ -61,19 +58,19 @@ function createBookCard(book, index) {
   /* eslint-enable no-use-before-define */
 }
 
-function updateBooks() {
+const updateBooks = () => {
   bookList.innerHTML = '';
   myLibrary.forEach((book, index) => createBookCard(book, index));
 }
 
-function addBook(e) {
+const addBook = (e) => {
   e.preventDefault();
   // To do DIV
   if (myLibrary.some((book) => book.title === titleInput.value)) {
     return;
   }
 
-  const book = new Book(
+  const book = Book(
     titleInput.value,
     authorInput.value,
     pageInput.value,
@@ -87,14 +84,14 @@ function addBook(e) {
 
 bookButton.addEventListener('click', addBook);
 
-function deleteBook(e) {
+const deleteBook = (e) => {
   const item = e.target;
   const index = item.getAttribute('data-index');
   myLibrary.splice(index, 1);
   updateBooks();
 }
 
-function checkBox(e) {
+const checkBox = (e) => {
   const item = e.target;
   const index = item.getAttribute('data-index');
   const book = myLibrary[index];
