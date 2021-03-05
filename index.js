@@ -1,100 +1,124 @@
-const titleInput = document.querySelector('.titleInput');
-const bookButton = document.querySelector('.book-button');
-const bookList = document.querySelector('.book-list');
-
-const authorInput = document.getElementById('authorInput');
-const pageInput = document.getElementById('pageInput');
-const readCheckbox = document.getElementById('readCheckbox');
-const form = document.getElementById('form');
-
 const myLibrary = [];
 
-const Book = (title, author, pages, read = false) => {
-  return { title, author, pages, read }
-}
+const Book = (title, author, pages, read = false) => ({
+  title, author, pages, read,
+});
 
-const createBookCard = (book, index) => {
-  const bookDiv = document.createElement('div');
-  bookDiv.classList.add('book');
-  // To do list
-  const newBook = document.createElement('li');
-  newBook.textContent = `Book Name: ${book.title} `;
-  newBook.classList.add('book-item');
-
-  bookDiv.appendChild(newBook);
-
-  const author = document.createElement('li');
-  author.textContent = `Author : ${book.author} `;
-  author.classList.add('book-item');
-
-  bookDiv.appendChild(author);
-
-
-  const page = document.createElement('li');
-  page.textContent = `Pages: ${book.pages} `;
-  page.classList.add('book-item');
-
-  bookDiv.appendChild(page);
-
-  // Check mark Button
-  const completeButton = document.createElement('button');
-  completeButton.setAttribute('data-index', index);
-  completeButton.innerText = book.read ? 'UnRead' : 'Read';
-  completeButton.classList.add('complete-btn');
-  bookDiv.appendChild(completeButton);
-
-  // Trash button
-  const trashButton = document.createElement('button');
-  trashButton.setAttribute('data-index', index);
-  trashButton.innerHTML = '<i class = "fa fa-trash"></i>';
-  trashButton.classList.add('trash-btn');
-  bookDiv.appendChild(trashButton);
-  // Append to list
-  bookList.appendChild(bookDiv);
-
-  /* eslint-disable no-use-before-define */
-  completeButton.addEventListener('click', checkBox);
-  trashButton.addEventListener('click', deleteBook);
-  /* eslint-enable no-use-before-define */
-}
-
-const updateBooks = () => {
+const generateBook = () => {
+  const bookList = document.querySelector('.book-list');
   bookList.innerHTML = '';
-  myLibrary.forEach((book, index) => createBookCard(book, index));
-}
+  myLibrary.forEach((book, index) => {
+    const element = document.createElement('li');
+    element.classList.add('book');
 
-const addBook = (e) => {
-  e.preventDefault();
-  // To do DIV
-  if (myLibrary.some((book) => book.title === titleInput.value)) {
-    return;
-  }
+    BookCard(element, book, index).create();
 
-  const book = Book(
-    titleInput.value,
-    authorInput.value,
-    pageInput.value,
-    readCheckbox.checked,
-  );
+    // Append to list
+    bookList.appendChild(element);
+  });
+};
 
-  myLibrary.push(book);
-  updateBooks();
-  form.reset();
-}
-
-bookButton.addEventListener('click', addBook);
 
 const deleteBook = (e) => {
   const item = e.target;
   const index = item.getAttribute('data-index');
   myLibrary.splice(index, 1);
-  updateBooks();
-}
+  generateBook();
+};
 
 const checkBox = (e) => {
   const item = e.target;
   const index = item.getAttribute('data-index');
   const book = myLibrary[index];
   book.read = !book.read;
-  updateBooks();
-}
+  generateBook();
+};
+
+const BookCard = (holder, book, index) => {
+  const createTitle = title => {
+    const element = document.createElement('span');
+    element.textContent = `Book Name: ${title} `;
+    element.classList.add('book-item');
+    holder.appendChild(element);
+  };
+
+  const createAuthor = author => {
+    const element = document.createElement('span');
+    element.textContent = `Author : ${author} `;
+    element.classList.add('book-item');
+    holder.appendChild(element);
+  };
+
+
+  const createPage = pages => {
+    const element = document.createElement('span');
+    element.textContent = `Pages: ${pages} `;
+    element.classList.add('book-item');
+    holder.appendChild(element);
+  };
+
+  // Check mark Button
+  const createCheckMarkButton = (read, index) => {
+    const element = document.createElement('button');
+    element.setAttribute('data-index', index);
+    element.innerText = read ? 'UnRead' : 'Read';
+    element.classList.add('complete-btn');
+    element.addEventListener('click', checkBox);
+    holder.appendChild(element);
+  };
+
+  // Trash button
+  const createTrashButton = index => {
+    const element = document.createElement('button');
+    element.setAttribute('data-index', index);
+    element.innerHTML = '<i class = "fa fa-trash"></i>';
+    element.classList.add('trash-btn');
+    element.addEventListener('click', deleteBook);
+    holder.appendChild(element);
+  };
+
+  const create = () => {
+    createTitle(book.title);
+    createAuthor(book.author);
+    createPage(book.pages);
+    createCheckMarkButton(book.read, index);
+    createTrashButton(index);
+  };
+
+  return { create };
+};
+
+const formData = (form) => {
+  const { title } = form.elements;
+  const { author } = form.elements;
+  const { pages } = form.elements;
+  const { read } = form.elements;
+
+  const getTitle = () => title.value;
+  const getAuthor = () => author.value;
+  const getPages = () => pages.value;
+  const getRead = () => read.value;
+
+  return {
+    getTitle, getAuthor, getPages, getRead,
+  };
+};
+
+const addBook = (e) => {
+  e.preventDefault();
+  // To do DIV
+  const form = document.querySelector('#form');
+  const f = formData(form);
+  if (myLibrary.some((book) => book.title === f.getTitle())) {
+    return;
+  }
+
+  const book = Book(f.getTitle(), f.getAuthor(), f.getPages(), f.getRead());
+
+  myLibrary.push(book);
+  generateBook();
+  form.reset();
+};
+
+const bookButton = document.querySelector('.book-button');
+bookButton.addEventListener('click', addBook);
