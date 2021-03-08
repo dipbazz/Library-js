@@ -4,36 +4,6 @@ const Book = (title, author, pages, read = false) => ({
   title, author, pages, read,
 });
 
-const generateBook = () => {
-  const bookList = document.querySelector('.book-list');
-  bookList.innerHTML = '';
-  myLibrary.forEach((book, index) => {
-    const element = document.createElement('li');
-    element.classList.add('book');
-
-    BookCard(element, book, index).create();
-
-    // Append to list
-    bookList.appendChild(element);
-  });
-};
-
-
-const deleteBook = (e) => {
-  const item = e.target;
-  const index = item.getAttribute('data-index');
-  myLibrary.splice(index, 1);
-  generateBook();
-};
-
-const checkBox = (e) => {
-  const item = e.target;
-  const index = item.getAttribute('data-index');
-  const book = myLibrary[index];
-  book.read = !book.read;
-  generateBook();
-};
-
 const BookCard = (holder, book, index) => {
   const createTitle = title => {
     const element = document.createElement('span');
@@ -63,7 +33,7 @@ const BookCard = (holder, book, index) => {
     element.setAttribute('data-index', index);
     element.innerText = read ? 'UnRead' : 'Read';
     element.classList.add('complete-btn');
-    element.addEventListener('click', checkBox);
+    element.addEventListener('click', changeReadStatus); // eslint-disable-line
     holder.appendChild(element);
   };
 
@@ -73,7 +43,7 @@ const BookCard = (holder, book, index) => {
     element.setAttribute('data-index', index);
     element.innerHTML = '<i class = "fa fa-trash"></i>';
     element.classList.add('trash-btn');
-    element.addEventListener('click', deleteBook);
+    element.addEventListener('click', deleteBook); // eslint-disable-line
     holder.appendChild(element);
   };
 
@@ -88,11 +58,39 @@ const BookCard = (holder, book, index) => {
   return { create };
 };
 
+const generateBook = () => {
+  const bookList = document.querySelector('.book-list');
+  bookList.innerHTML = '';
+  myLibrary.forEach((book, index) => {
+    const element = document.createElement('li');
+    element.classList.add('book');
+
+    BookCard(element, book, index).create();
+
+    // Append to list
+    bookList.appendChild(element);
+  });
+};
+
+const deleteBook = (e) => {
+  const item = e.target;
+  const index = item.getAttribute('data-index');
+  myLibrary.splice(index, 1);
+  generateBook();
+};
+
+const changeReadStatus = (e) => {
+  const item = e.target;
+  const index = item.getAttribute('data-index');
+  const book = myLibrary[index];
+  book.read = !book.read;
+  generateBook();
+};
+
 const formData = (form) => {
-  const { title } = form.elements;
-  const { author } = form.elements;
-  const { pages } = form.elements;
-  const { read } = form.elements;
+  const {
+    title, author, pages, read,
+  } = form.elements;
 
   const getTitle = () => title.value;
   const getAuthor = () => author.value;
@@ -122,3 +120,7 @@ const addBook = (e) => {
 
 const bookButton = document.querySelector('.book-button');
 bookButton.addEventListener('click', addBook);
+
+document.querySelectorAll('.trash-btn').forEach(el => {
+  el.addEventListener('click', deleteBook);
+});
