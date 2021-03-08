@@ -1,8 +1,13 @@
 const myLibrary = [];
 
-const Book = (title, author, pages, read = false) => ({
-  title, author, pages, read,
-});
+class Book {
+  constructor(title, author, pages, read = false) {
+    this.title = title;
+    this.author = author;
+    this.pages = pages;
+    this.read = read;
+  }
+}
 
 const BookCard = (holder, book, index) => {
   const createTitle = title => {
@@ -111,7 +116,7 @@ const addBook = (e) => {
     return;
   }
 
-  const book = Book(f.getTitle(), f.getAuthor(), f.getPages(), f.getRead());
+  const book = new Book(f.getTitle(), f.getAuthor(), f.getPages(), f.getRead());
 
   myLibrary.push(book);
   generateBook();
